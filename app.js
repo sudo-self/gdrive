@@ -31,11 +31,7 @@ function init() {
   var html = `
 <header class="mdui-appbar mdui-color-theme"> 
    <div id="nav" class="mdui-toolbar mdui-container"> 
-   <h1 class="text-4xl font-bold text-center text-indigo-600 mb-6">
   <img src="https://bucket.jessejesse.com/logo.png" alt="Logo" class="inline-block h-10 mr-2">
-  ${authConfig.siteName}
-</h1>
-
    </div> 
 </header>
 <div id="content" class="mdui-container"> 
