@@ -28,16 +28,35 @@ document.write(
 function init() {
   document.siteName = $("title").html();
   $("body").addClass("mdui-theme-primary-blue-grey mdui-theme-accent-blue");
+  
+  // Set the logo and toggle for light/dark modes
   var html = `
-<header class="mdui-appbar mdui-color-theme"> 
-   <div id="nav" class="mdui-toolbar mdui-container"> 
-  <img src="https://bucket.jessejesse.com/logo.png" alt="Logo" class="inline-block h-10 mr-2">
-   </div> 
-</header>
-<div id="content" class="mdui-container"> 
-</div>
+  <header class="mdui-appbar mdui-color-theme">
+     <div id="nav" class="mdui-toolbar mdui-container">
+      <img src="https://bucket.jessejesse.com/logo.png" alt="Logo" class="inline-block h-10 mr-2">
+      
+      <!-- Dark mode toggle button -->
+      <div class="ml-auto">
+        <label class="mdui-switch">
+          <input type="checkbox" id="dark-mode-toggle">
+          <i class="mdui-switch-icon"></i>
+        </label>
+      </div>
+    </div>
+  </header>
+  <div id="content" class="mdui-container"></div>
   `;
+  
   $("body").html(html);
+
+  // Event listener to toggle dark mode
+  $("#dark-mode-toggle").on("change", function () {
+    if (this.checked) {
+      $("body").addClass("mdui-theme-layout-dark");
+    } else {
+      $("body").removeClass("mdui-theme-layout-dark");
+    }
+  });
 }
 
 // Render content based on the provided path
@@ -96,7 +115,7 @@ function listFiles(path) {
       <ul id="list" class="mdui-list"> </ul> 
     </div>
   `;
-
+  
   // Footer HTML
   var footer = `
     <footer class="bg-gray-800 text-white text-center py-4 mt-auto w-full">
@@ -106,18 +125,18 @@ function listFiles(path) {
       <p class="text-sm">© 2024 ${authConfig.siteName}. All rights reserved.</p>
     </footer>
   `;
-
+  
   // Append the footer to content
   content += footer;
-
+  
   // Now set the full content with footer
   $("#content").html(content);
-
+  
   var password = localStorage.getItem("password" + path);
   $("#list").html(
     `<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`
   );
-
+  
   $.post(path, `{"password":"${password}"}`, function (data, status) {
     var obj = jQuery.parseJSON(data);
     if (obj && obj.hasOwnProperty("error") && obj.error.code == "401") {
@@ -194,4 +213,5 @@ $(function () {
 
   render(path);
 });
+
 
