@@ -1,62 +1,30 @@
 // Load necessary static assets in the <head>
-document.write(
-  '<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">'
-);
-// APlayer support
-document.write(
-  '<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">'
-);
-document.write(
-  '<script src="//cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>'
-);
-// DPlayer support
-document.write(
-  '<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/dplayer@1.25.0/dist/DPlayer.min.css">'
-);
-document.write(
-  '<script src="//cdn.jsdelivr.net/npm/dplayer@1.25.1/dist/DPlayer.min.js"></script>'
-);
-// Markdown support
-document.write(
-  '<script src="//cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js"></script>'
-);
-document.write(
-  "<style>.mdui-appbar .mdui-toolbar{height:56px;font-size:1pc}.mdui-toolbar>*{padding:0 6px;margin:0 2px}.mdui-toolbar>i{opacity:.5}.mdui-toolbar>.mdui-typo-headline{padding:0 1pc 0 0}.mdui-toolbar>i{padding:0}.mdui-toolbar>a:hover,a.active,a.mdui-typo-headline{opacity:1}.mdui-container{max-width:980px}.mdui-list-item{transition:none}.mdui-list>.th{background-color:initial}.mdui-list-item>a{width:100%;line-height:3pc}.mdui-list-item{margin:2px 0;padding:0}.mdui-toolbar>a:last-child{opacity:1}@media screen and (max-width:980px){.mdui-list-item .mdui-text-right{display:none}.mdui-container{width:100%!important;margin:0}.mdui-toolbar>.mdui-typo-headline,.mdui-toolbar>a:last-child,.mdui-toolbar>i:first-child{display:block}}</style>"
-);
+document.write('<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">');
+document.write('<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">');
+document.write('<script src="//cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>');
+document.write('<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/dplayer@1.25.0/dist/DPlayer.min.css">');
+document.write('<script src="//cdn.jsdelivr.net/npm/dplayer@1.25.1/dist/DPlayer.min.js"></script>');
+document.write('<script src="//cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js"></script>');
+document.write("<style>.mdui-appbar .mdui-toolbar{height:56px;font-size:1pc}.mdui-toolbar>*{padding:0 6px;margin:0 2px}.mdui-toolbar>i{opacity:.5}.mdui-toolbar>.mdui-typo-headline{padding:0 1pc 0 0}.mdui-toolbar>i{padding:0}.mdui-toolbar>a:hover,a.active,a.mdui-typo-headline{opacity:1}.mdui-container{max-width:980px}.mdui-list-item{transition:none}.mdui-list>.th{background-color:initial}.mdui-list-item>a{width:100%;line-height:3pc}.mdui-list-item{margin:2px 0;padding:0}.mdui-toolbar>a:last-child{opacity:1}@media screen and (max-width:980px){.mdui-list-item .mdui-text-right{display:none}.mdui-container{width:100%!important;margin:0}.mdui-toolbar>.mdui-typo-headline,.mdui-toolbar>a:last-child,.mdui-toolbar>i:first-child{display:block}}</style>");
 
 // Initialize the page and load necessary resources
 function init() {
   document.siteName = $("title").html();
   $("body").addClass("mdui-theme-primary-blue-grey mdui-theme-accent-blue");
   
-  // Set the logo and toggle for light/dark modes
+  // Setup HTML structure
   var html = `
-  <header class="mdui-appbar mdui-color-theme">
-     <div id="nav" class="mdui-toolbar mdui-container">
-      <img src="https://bucket.jessejesse.com/logo.png" alt="Logo" class="inline-block h-10 mr-2">
-      
-      <!-- Dark mode toggle button -->
-      <div class="ml-auto">
-        <label class="mdui-switch">
-          <input type="checkbox" id="dark-mode-toggle">
-          <i class="mdui-switch-icon"></i>
-        </label>
-      </div>
+    <header class="mdui-appbar mdui-color-theme"> 
+      <div id="nav" class="mdui-toolbar mdui-container"> 
+        <img src="https://bucket.jessejesse.com/logo.png" alt="Logo" class="inline-block h-10 mr-2">
+      </div> 
+    </header>
+    <div id="content" class="mdui-container"> 
+      <!-- Content dynamically injected here -->
     </div>
-  </header>
-  <div id="content" class="mdui-container"></div>
   `;
   
   $("body").html(html);
-
-  // Event listener to toggle dark mode
-  $("#dark-mode-toggle").on("change", function () {
-    if (this.checked) {
-      $("body").addClass("mdui-theme-layout-dark");
-    } else {
-      $("body").removeClass("mdui-theme-layout-dark");
-    }
-  });
 }
 
 // Render content based on the provided path
@@ -64,8 +32,11 @@ function render(path) {
   if (path.indexOf("?") > 0) {
     path = path.substr(0, path.indexOf("?"));
   }
+  
   updateTitle(path);
   updateNav(path);
+  
+  // Render different content based on path type (directory or file)
   if (path.substr(-1) === "/") {
     listFiles(path);
   } else {
@@ -85,6 +56,7 @@ function updateNav(path) {
   html += `<a href="/" class="mdui-typo-headline folder">${document.siteName}</a>`;
   var arr = path.trim("/").split("/");
   var p = "/";
+  
   if (arr.length > 0) {
     for (let i in arr) {
       var n = arr[i];
@@ -96,6 +68,7 @@ function updateNav(path) {
       html += `<i class="mdui-icon material-icons mdui-icon-dark folder" style="margin:0;">chevron_right</i><a class="folder" href="${p}">${n}</a>`;
     }
   }
+  
   $("#nav").html(html);
 }
 
@@ -122,21 +95,17 @@ function listFiles(path) {
       <div class="mb-4">
         <img src="https://img.shields.io/badge/gdrive-.JesseJesse.workers.dev-orange" alt="Badge Preview" class="rounded-md" />
       </div>
-      <p class="text-sm">© 2024 ${authConfig.siteName}. All rights reserved.</p>
+      <p class="text-sm">© 2024 ${document.siteName}. All rights reserved.</p>
     </footer>
   `;
   
-  // Append the footer to content
-  content += footer;
-  
-  // Now set the full content with footer
-  $("#content").html(content);
-  
+  content += footer; // Add footer to content
+  $("#content").html(content); // Append content to body
+
   var password = localStorage.getItem("password" + path);
-  $("#list").html(
-    `<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`
-  );
+  $("#list").html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
   
+  // Simulate file listing via post
   $.post(path, `{"password":"${password}"}`, function (data, status) {
     var obj = jQuery.parseJSON(data);
     if (obj && obj.hasOwnProperty("error") && obj.error.code == "401") {
@@ -164,6 +133,7 @@ function populateFileList(path, files) {
 
     item["modifiedTime"] = convertUTCtoLocal(item["modifiedTime"]);
     item["size"] = formatFileSize(item["size"]);
+    
     if (item["mimeType"] === "application/vnd.google-apps.folder") {
       html += `<li class="mdui-list-item mdui-ripple"><a href="${filePath}" class="folder">
         <div class="mdui-col-xs-12 mdui-col-sm-7">${item.name}</div>
@@ -179,7 +149,7 @@ function populateFileList(path, files) {
       </a></li>`;
     }
   }
-  $("#list").html(html);
+  $("#list").html(html); // Inject file list into DOM
 }
 
 // Convert UTC time to local time
@@ -204,6 +174,7 @@ window.onpopstate = function () {
 $(function () {
   init();
   var path = window.location.pathname;
+  
   $("body").on("click", ".folder, .view", function () {
     var url = $(this).attr("href");
     history.pushState(null, null, url);
@@ -211,7 +182,8 @@ $(function () {
     return false;
   });
 
-  render(path);
+  render(path); // Initial render call
 });
+
 
 
