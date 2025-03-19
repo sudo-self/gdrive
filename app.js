@@ -94,13 +94,22 @@ function listFiles(path) {
     <div class="mdui-row"> 
       <ul id="list" class="mdui-list"> </ul> 
     </div>
-      <footer class="bg-gray-800 text-white text-center py-4 mt-auto w-full">
-    <div class="mb-4">
-      <img src="https://img.shields.io/badge/gdrive-.JesseJesse.workers.dev-orange" alt="Badge Preview" class="rounded-md" />
-    </div>
-    <p class="text-sm">© 2024 ${authConfig.siteName}. All rights reserved.</p>
-  </footer>
   `;
+
+  // Footer HTML
+  var footer = `
+    <footer class="bg-gray-800 text-white text-center py-4 mt-auto w-full">
+      <div class="mb-4">
+        <img src="https://img.shields.io/badge/gdrive-.JesseJesse.workers.dev-orange" alt="Badge Preview" class="rounded-md" />
+      </div>
+      <p class="text-sm">© 2024 ${authConfig.siteName}. All rights reserved.</p>
+    </footer>
+  `;
+
+  // Append the footer to content
+  content += footer;
+
+  // Now set the full content with footer
   $("#content").html(content);
 
   var password = localStorage.getItem("password" + path);
@@ -184,3 +193,4 @@ $(function () {
 
   render(path);
 });
+
