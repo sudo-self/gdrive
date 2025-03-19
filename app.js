@@ -1,4 +1,4 @@
-// Load required static resources in the <head>
+// Load necessary static assets in the <head>
 document.write(
   '<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">'
 );
@@ -35,38 +35,40 @@ function init() {
 </header>
 <div id="content" class="mdui-container"> 
 </div>
-	`;
+  `;
   $("body").html(html);
 }
 
-// Render the page based on the path
+// Render content based on the provided path
 function render(path) {
   if (path.indexOf("?") > 0) {
     path = path.substr(0, path.indexOf("?"));
   }
   updateTitle(path);
   updateNav(path);
-  if (path.substr(-1) == "/") {
+  if (path.substr(-1) === "/") {
     listFiles(path);
   } else {
-    showFile(path);
+    displayFile(path);
   }
 }
 
-// Update the page title
+// Update page title
 function updateTitle(path) {
   path = decodeURI(path);
   $("title").html(document.siteName + " - " + path);
 }
 
-// Update the navigation bar
+// Update navigation bar
 function updateNav(path) {
-  var html = `<a href="/" class="mdui-typo-headline folder">${document.siteName}</a>`;
+  var html = "";
+  html += `<a href="/" class="mdui-typo-headline folder">${document.siteName}</a>`;
   var arr = path.trim("/").split("/");
   var p = "/";
   if (arr.length > 0) {
-    for (i in arr) {
-      var n = decodeURI(arr[i]);
+    for (let i in arr) {
+      var n = arr[i];
+      n = decodeURI(n);
       p += n + "/";
       if (n == "") {
         break;
@@ -77,89 +79,102 @@ function updateNav(path) {
   $("#nav").html(html);
 }
 
-// List files in a directory
+// List files in the directory
 function listFiles(path) {
   var content = `
-	<div id="header_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-
-	 <div class="mdui-row"> 
-	  <ul class="mdui-list"> 
-	   <li class="mdui-list-item th"> 
-	    <div class="mdui-col-xs-12 mdui-col-sm-7">
-	     File Name
-	     <i class="mdui-icon material-icons icon-sort" data-sort="name" data-order="more">expand_more</i>
-	    </div> 
-	    <div class="mdui-col-sm-3 mdui-text-right">
-	     Last Modified
-	     <i class="mdui-icon material-icons icon-sort" data-sort="date" data-order="downward">expand_more</i>
-	    </div> 
-	    <div class="mdui-col-sm-2 mdui-text-right">
-	     Size
-	     <i class="mdui-icon material-icons icon-sort" data-sort="size" data-order="downward">expand_more</i>
-	    </div> 
-	    </li> 
-	  </ul> 
-	 </div> 
-	 <div class="mdui-row"> 
-	  <ul id="fileList" class="mdui-list"> 
-	  </ul> 
-	 </div>
-	 <div id="readme_md" class="mdui-typo" style="display:none; padding: 20px 0;"></div>
-	`;
+    <div class="mdui-row"> 
+      <ul class="mdui-list"> 
+        <li class="mdui-list-item th"> 
+          <div class="mdui-col-xs-12 mdui-col-sm-7">File</div> 
+          <div class="mdui-col-sm-3 mdui-text-right">Last Modified</div> 
+          <div class="mdui-col-sm-2 mdui-text-right">Size</div> 
+        </li> 
+      </ul> 
+    </div> 
+    <div class="mdui-row"> 
+      <ul id="list" class="mdui-list"> </ul> 
+    </div>
+  `;
   $("#content").html(content);
 
   var password = localStorage.getItem("password" + path);
-  $("#fileList").html(
+  $("#list").html(
     `<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`
   );
-  $("#readme_md").hide().html("");
-  $("#header_md").hide().html("");
-  $.post(path, '{"password":"' + password + '"}', function (data, status) {
+
+  $.post(path, `{"password":"${password}"}`, function (data, status) {
     var obj = jQuery.parseJSON(data);
-    if (obj !== null && obj.hasOwnProperty("error") && obj.error.code === "401") {
+    if (obj && obj.hasOwnProperty("error") && obj.error.code == "401") {
       var pass = prompt("Directory is password protected. Enter password:", "");
       localStorage.setItem("password" + path, pass);
-      if (pass !== null && pass !== "") {
+      if (pass) {
         listFiles(path);
       } else {
         history.go(-1);
       }
-    } else if (obj !== null) {
-      renderFileList(path, obj.files);
+    } else if (obj) {
+      populateFileList(path, obj.files);
     }
   });
 }
 
-// Render the file list
-function renderFileList(path, files) {
-  var html = "";
-  for (var i in files) {
+function populateFileList(path, files) {
+  let html = "";
+  for (let i in files) {
     var item = files[i];
     var filePath = path + item.name + "/";
-    var size = formatFileSize(item["size"] || 0);
-    var modifiedTime = formatDate(item["modifiedTime"]);
+    if (!item["size"]) {
+      item["size"] = "";
+    }
 
+    item["modifiedTime"] = convertUTCtoLocal(item["modifiedTime"]);
+    item["size"] = formatFileSize(item["size"]);
     if (item["mimeType"] === "application/vnd.google-apps.folder") {
       html += `<li class="mdui-list-item mdui-ripple"><a href="${filePath}" class="folder">
-	            <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
-	            <i class="mdui-icon material-icons">folder_open</i>
-	              ${item.name}
-	            </div>
-	            <div class="mdui-col-sm-3 mdui-text-right">${modifiedTime}</div>
-	            <div class="mdui-col-sm-2 mdui-text-right">${size}</div>
-	            </a>
-	        </li>`;
+        <div class="mdui-col-xs-12 mdui-col-sm-7">${item.name}</div>
+        <div class="mdui-col-sm-3 mdui-text-right">${item["modifiedTime"]}</div>
+        <div class="mdui-col-sm-2 mdui-text-right">${item["size"]}</div>
+      </a></li>`;
     } else {
-      html += `<li class="mdui-list-item file mdui-ripple"><a href="${filePath}" class="file">
-	          <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
-	          <i class="mdui-icon material-icons">insert_drive_file</i>
-	            ${item.name}
-	          </div>
-	          <div class="mdui-col-sm-3 mdui-text-right">${modifiedTime}</div>
-	          <div class="mdui-col-sm-2 mdui-text-right">${size}</div>
-	          </a>
-	      </li>`;
+      var fileUrl = path + item.name;
+      html += `<li class="mdui-list-item file mdui-ripple"><a href="${fileUrl}">
+        <div class="mdui-col-xs-12 mdui-col-sm-7">${item.name}</div>
+        <div class="mdui-col-sm-3 mdui-text-right">${item["modifiedTime"]}</div>
+        <div class="mdui-col-sm-2 mdui-text-right">${item["size"]}</div>
+      </a></li>`;
     }
   }
-  $("#fileList").html(html);
+  $("#list").html(html);
 }
+
+// Convert UTC time to local time
+function convertUTCtoLocal(utcTime) {
+  let date = new Date(utcTime);
+  return date.toLocaleString();
+}
+
+// Format file sizes
+function formatFileSize(bytes) {
+  if (bytes >= 1e9) return (bytes / 1e9).toFixed(2) + " GB";
+  if (bytes >= 1e6) return (bytes / 1e6).toFixed(2) + " MB";
+  if (bytes >= 1e3) return (bytes / 1e3).toFixed(2) + " KB";
+  return bytes > 1 ? bytes + " bytes" : bytes === 1 ? "1 byte" : "";
+}
+
+// Listen for back button navigation
+window.onpopstate = function () {
+  render(window.location.pathname);
+};
+
+$(function () {
+  init();
+  var path = window.location.pathname;
+  $("body").on("click", ".folder, .view", function () {
+    var url = $(this).attr("href");
+    history.pushState(null, null, url);
+    render(url);
+    return false;
+  });
+
+  render(path);
+});
