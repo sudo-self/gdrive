@@ -94,6 +94,12 @@ function listFiles(path) {
     <div class="mdui-row"> 
       <ul id="list" class="mdui-list"> </ul> 
     </div>
+      <footer class="bg-gray-800 text-white text-center py-4 mt-auto w-full">
+    <div class="mb-4">
+      <img src="https://img.shields.io/badge/gdrive-.JesseJesse.workers.dev-orange" alt="Badge Preview" class="rounded-md" />
+    </div>
+    <p class="text-sm">© 2024 ${authConfig.siteName}. All rights reserved.</p>
+  </footer>
   `;
   $("#content").html(content);
 
