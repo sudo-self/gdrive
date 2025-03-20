@@ -1,21 +1,25 @@
-const environment = "production"; // "production" | "development" | "local"
+const environment = "production";
 
-// Service account selection
+// Service Account Selection (Prevent Empty Array Errors)
 const serviceaccounts = [];
-const randomserviceaccount = serviceaccounts[Math.floor(Math.random() * serviceaccounts.length)]; 
+const randomserviceaccount =
+  serviceaccounts.length > 0
+    ? serviceaccounts[Math.floor(Math.random() * serviceaccounts.length)]
+    : null;
 
-// Domains for download
+// Download Domains (Load Balancing)
 const domains_for_dl = [
   "https://testing.fetchgoogleapi.workers.dev",
   "https://testing2.fetchgoogleapi2.workers.dev",
-]; 
-const domain_for_dl = domains_for_dl[Math.floor(Math.random() * domains_for_dl.length)];
+];
+const domain_for_dl =
+  domains_for_dl[Math.floor(Math.random() * domains_for_dl.length)];
 
-// Blocked regions and ASN
-const blocked_region = []; 
-const blocked_asn = []; 
+// Blocked Regions & ASN
+const blocked_region = [];
+const blocked_asn = [];
 
-// Authentication configuration
+// Authentication Config
 const authConfig = {
   siteName: "💾 JRs Server",
   root_pass: "",
@@ -23,14 +27,15 @@ const authConfig = {
   theme: "material",
   client_id: "202264815644.apps.googleusercontent.com",
   client_secret: "X4Z3ca8xfWDb1Voo-F9a7ZxJ",
-  refresh_token: "1//05OZT4tVkIxWaCgYIARAAGAUSNwF-L9IrT9pnsIvSAbEVO7cKEAPsXYztEZGgOY9IFmzRWl-nOZusamDHaZ1p6rNRI3P9R8YyzyE",
+  refresh_token:
+    "1//05OZT4tVkIxWaCgYIARAAGAUSNwF-L9IrT9pnsIvSAbEVO7cKEAPsXYztEZGgOY9IFmzRWl-nOZusamDHaZ1p6rNRI3P9R8YyzyE",
   root: "1DYhHdmNX7kcML4TVyxUg3NvvT_OoPe8F",
-  service_account: false,
+  service_account: randomserviceaccount !== null, // Ensure it doesn't break if empty
   service_account_json: randomserviceaccount,
   files_list_page_size: 100,
   search_result_list_page_size: 100,
   enable_cors_file_down: false,
-  enable_password_file_verify: false,
+  enable_password_file_verify: true,
   direct_link_protection: false,
   disable_anonymous_download: false,
   file_link_expiry: 7,
@@ -47,37 +52,59 @@ const authConfig = {
   single_session: false,
   ip_changed_action: false,
   users_list: [
-    { username: "admin", password: "admin" },
-    { username: "admin1", password: "admin1" },
+    { username: "Admin", password: "1234" },
+    { username: "Admin1", password: "1234" },
   ],
   roots: [
     {
       id: "1DYhHdmNX7kcML4TVyxUg3NvvT_OoPe8F",
       name: "JRs Cloud",
-      protect_file_link: false,
+      protect_root: false,
+    },
+    {
+      id: "1j1C9EauuxdW72pv3MIxukfIVGsLZ5jo7",
+      name: "Vault",
+      password: "053053",
+      protect_root: false,
     },
   ],
 };
 
-// Encryption and HMAC keys (replace with secure keys)
-const crypto_base_key = "3225f86e99e205347b4310e437253bfd"; 
-const hmac_base_key = "4d1fbf294186b82d74fff2494c04012364200263d6a36123db0bd08d6be1423c"; 
-const encrypt_iv = new Uint8Array([247, 254, 106, 195, 32, 148, 131, 244, 222, 133, 26, 182, 20, 138, 215, 81]);
+// 🔹 Vault Authentication Function
+function authenticateVault() {
+  const userPass = prompt("Enter Vault Password:");
+  if (userPass !== "053053") {
+    alert("Incorrect password. Access denied.");
+    if (typeof window !== "undefined") {
+      window.history.back(); // Redirect back instead of forcing login
+    }
+  }
+}
 
-// UI Configuration
+// 🔹 Function to Check if Vault is Accessed
+function checkVaultAccess(folderId) {
+  const vaultFolderId = "1j1C9EauuxdW72pv3MIxukfIVGsLZ5jo7"; // Vault Folder ID
+  if (folderId === vaultFolderId) {
+    authenticateVault();
+  }
+}
+
+// 🔹 UI Configuration
 const uiConfig = {
   theme: "darkly",
   version: "2.3.7",
   logo_image: true,
   logo_height: "",
   logo_width: "100px",
-  favicon: "https://cdn.jsdelivr.net/npm/@googledrive/index@2.2.3/images/favicon.ico",
-  logo_link_name: "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/icon.png",
-  login_image: "https://i.imgur.com/5fHELJr.png",
+  favicon:
+    "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/gdrive.png",
+  logo_link_name:
+    "https://pub-c1de1cb456e74d6bbbee111ba9e6c757.r2.dev/icon.png",
+  login_image: "https://firebasestorage.googleapis.com/v0/b/jessejessexyz.appspot.com/o/icon-2.png?alt=media&token=91ff91c9-7aef-4fea-baa3-874d5261b6d5",
   fixed_header: true,
   header_padding: "80",
-  nav_link_1: "Home",
-  nav_link_4: "Email",
+  nav_link_1: "Cloud",
+  nav_link_4: "FRP",
   fixed_footer: false,
   hide_footer: true,
   header_style_class: "navbar-dark bg-primary",
@@ -90,11 +117,11 @@ const uiConfig = {
   path_nav_alert_class: "alert alert-primary",
   file_view_alert_class: "alert alert-danger",
   file_count_alert_class: "alert alert-secondary",
-  contact_link: "mailto:tech@jessejesse.com",
-  copyright_year: "2050",
-  company_name: "JRs Cloud",
+  contact_link: "https://frp.sudo-self.com",
+  copyright_year: "",
+  company_name: "JRs cloud",
   company_link: "https://jessejesse.xyz",
-  credit: true,
+  credit: false,
   display_size: true,
   display_time: false,
   display_download: true,
@@ -102,8 +129,10 @@ const uiConfig = {
   disable_video_download: false,
   allow_selecting_files: true,
   second_domain_for_dl: false,
-  poster: "https://cdn.jsdelivr.net/npm/@googledrive/index@2.2.3/images/poster.jpg",
-  audioposter: "https://cdn.jsdelivr.net/npm/@googledrive/index@2.2.3/images/music.jpg",
+  poster:
+    "https://cdn.jsdelivr.net/npm/@googledrive/index@2.2.3/images/poster.jpg",
+  audioposter:
+    "https://cdn.jsdelivr.net/npm/@googledrive/index@2.2.3/images/music.jpg",
   jsdelivr_cdn_src: "https://cdn.jsdelivr.net/npm/@googledrive/index",
   render_head_md: true,
   render_readme_md: true,
@@ -113,13 +142,14 @@ const uiConfig = {
   show_logout_button: authConfig.enable_login ? true : false,
 };
 
-// Player configuration (video player options)
+// 🔹 Player Configuration
 const player_config = {
-  "player": "videojs", 
-  "videojs_version": "8.3.0", 
-  "plyr_io_version": "3.7.8",
-  "jwplayer_version": "8.16.2"
+  player: "videojs",
+  videojs_version: "8.3.0",
+  plyr_io_version: "3.7.8",
+  jwplayer_version: "8.16.2",
 };
+
 
 
 // DON'T TOUCH BELOW THIS UNLESS YOU KNOW WHAT YOU'RE DOING
